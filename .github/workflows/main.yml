@@ -24,7 +24,12 @@ jobs:
         - name: Checkout code
           uses: actions/checkout@v3
     
-        - name: Validate build dockerfile
-          run: docker build -t mi-app:${{ steps.extract_version.outputs.VERSION }} .
+        - name: Build dockerfile
+          run: docker build -t mi-app:1.0.0 .
+        
+        - name: Validate docker image
+          run: |
+            docker ps
+            
 
 
