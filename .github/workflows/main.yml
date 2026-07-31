@@ -50,5 +50,11 @@ jobs:
             echo -e "\e[32mdocker ps!\e[0m"
             docker ps
             echo -e "\e[32mdocker ps -a!\e[0m"
+            docker ps -a
+            echo -e "\e[32mdocker rm mi-app-container (eliminar)!\e[0m"
+            docker rm mi-app-container
+            echo -e "\e[32mdocker ps!\e[0m"
+            docker ps
+            echo -e "\e[32mdocker ps -a!\e[0m"
             docker ps -a            
 
