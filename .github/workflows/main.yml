@@ -33,6 +33,12 @@ jobs:
             docker ps
             echo -e "\e[32mdocker ps -a!\e[0m"
             docker ps -a
+            echo -e "\e[32mdocker images!\e[0m"
+            docker images
+            echo -e "\e[32mdocker run!\e[0m"
+            docker run -d --name mi-app-container -p 8080:8080 -e SERVERS_ADRESS=0.0.0.0 mi-app:1.0.0
+            echo -e "\e[32mdocker ps!\e[0m"
+            docker ps            
 
             
 
