@@ -38,8 +38,11 @@ jobs:
             echo -e "\e[32mdocker run!\e[0m"
             docker run -d --name mi-app-container -p 8080:8080 -e SERVERS_ADRESS=0.0.0.0 mi-app:1.0.0
             echo -e "\e[32mdocker ps!\e[0m"
-            docker ps            
-
-            
+            docker ps
+            sleep 20      
+            echo -e "\e[32mdocker logs mi-app-container!\e[0m"
+            docker logs mi-app-container
+            echo -e "\e[32mValidar curl!\e[0m"
+            curl -f http://localhost:8080 || (echo "Curl failed" && exit 1)
 
 
