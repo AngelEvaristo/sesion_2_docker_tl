@@ -34,22 +34,44 @@ jobs:
           run: |
            echo "Version: ${{ needs.extract-version.outputs.app_version }}"
 
-        - name: Configure ACR credentials
-          uses: azure/docker-login@v1
+################
+###### PUSH Registry GCP
+###############           
+        - uses: google-github-actions/auth@v3
           with:
-            login-server: ${{ secrets.ACR_LOGIN_SERVER }}
-            username: ${{ secrets.ACR_USERNAME }}
-            password: ${{ secrets.ACR_PASSWORD }}
-
-        - name: Build, tag, and push Docker image to ACR
+            credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+        - name: Configure Docker for GCP
+          run: gcloud auth configure-docker us-east1-docker.pkg.dev --quiet             
+        - name: Build, tag, and push Docker image to GCP Registry
           env:
             IMAGE_TAG: ${{ needs.extract-version.outputs.app_version }}
-            ACR_REPOSITORY: testsesion2tl
-            ACR_REGISTRY: ${{ secrets.ACR_LOGIN_SERVER }}
+            IMAGE_NAME: mi-app
+            PROJECT_ID: credenciales-364703
+            GCP_REPOSITORY: testtecylab
+            GCP_REGISTRY: us-east1-docker.pkg.dev
           run: |
-            docker build -t $ACR_REGISTRY/$ACR_REPOSITORY:$IMAGE_TAG .
-            docker push $ACR_REGISTRY/$ACR_REPOSITORY:$IMAGE_TAG
+            docker build -t $GCP_REGISTRY/$PROJECT_ID/$GCP_REPOSITORY/$IMAGE_NAME:$IMAGE_TAG .
+            docker push $GCP_REGISTRY/$PROJECT_ID/$GCP_REPOSITORY/$IMAGE_NAME:$IMAGE_TAG
             docker images
+################
+###### PUSH ACR
+###############           
+        # - name: Configure ACR credentials
+        #   uses: azure/docker-login@v1
+        #   with:
+        #     login-server: ${{ secrets.ACR_LOGIN_SERVER }}
+        #     username: ${{ secrets.ACR_USERNAME }}
+        #     password: ${{ secrets.ACR_PASSWORD }}
+
+        # - name: Build, tag, and push Docker image to ACR
+        #   env:
+        #     IMAGE_TAG: ${{ needs.extract-version.outputs.app_version }}
+        #     ACR_REPOSITORY: testsesion2tl
+        #     ACR_REGISTRY: ${{ secrets.ACR_LOGIN_SERVER }}
+        #   run: |
+        #     docker build -t $ACR_REGISTRY/$ACR_REPOSITORY:$IMAGE_TAG .
+        #     docker push $ACR_REGISTRY/$ACR_REPOSITORY:$IMAGE_TAG
+        #     docker images
     
 ################
 ###### PUSH ECR
