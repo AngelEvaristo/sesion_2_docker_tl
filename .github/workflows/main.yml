@@ -44,5 +44,11 @@ jobs:
             docker logs mi-app-container
             echo -e "\e[32mValidar curl!\e[0m"
             curl -f http://localhost:8080 || (echo "Curl failed" && exit 1)
-
+            echo -e "\e[32mdocker stop mi-app-container!\e[0m"
+            docker stop mi-app-container
+            docker logs mi-app-container
+            echo -e "\e[32mdocker ps!\e[0m"
+            docker ps
+            echo -e "\e[32mdocker ps -a!\e[0m"
+            docker ps -a            
 
