@@ -6,6 +6,8 @@ jobs:
 
     extract-version:
         runs-on: ubuntu-latest
+        outputs:
+          app_version: ${{ steps.extract_version.outputs.VERSION }}
         steps:
         - name: Checkout code
           uses: actions/checkout@v3
@@ -26,16 +28,16 @@ jobs:
 
         - name: Print version
           run: |
-           echo "Version: ${{ steps.extract-version.outputs.VERSION }}"
+           echo "Version: ${{ needs.extract-version.outputs.app_version }}"
 
         - name: Build dockerfile
           env:
-            IMAGE_TAG: ${{ steps.extract-version.outputs.VERSION }}
+            IMAGE_TAG: ${{ needs.extract-version.outputs.app_version }}
           run: docker build -t mi-app:$IMAGE_TAG .
         
         - name: Validate docker image
           env:
-            IMAGE_TAG: ${{ steps.extract-version.outputs.VERSION }}
+            IMAGE_TAG: ${{ needs.extract-version.outputs.app_version }}
           run: |
             echo -e "\e[32mdocker ps!\e[0m"
             docker ps
@@ -65,7 +67,7 @@ jobs:
             docker ps
             echo -e "\e[32mdocker ps -a!\e[0m"
             docker ps -a     
-            echo -e "\e[32mdocker rmi mi-app:1.0.0 (eliminar)!\e[0m"
+            echo -e "\e[32mdocker rmi mi-app:$IMAGE_TAG (eliminar)!\e[0m"
             docker rmi mi-app:$IMAGE_TAG
             echo -e "\e[32mdocker ps!\e[0m"
             docker images
