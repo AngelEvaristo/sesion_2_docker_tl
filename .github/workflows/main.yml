@@ -23,15 +23,19 @@ jobs:
         steps:
         - name: Checkout code
           uses: actions/checkout@v3
-    
+
+        - name: Print version
+          run: |
+           echo "Version: ${{ steps.extract-version.outputs.VERSION }}"
+
         - name: Build dockerfile
           env:
-            IMAGE_TAG: ${{ steps.extract_version.outputs.VERSION }}
+            IMAGE_TAG: ${{ steps.extract-version.outputs.VERSION }}
           run: docker build -t mi-app:$IMAGE_TAG .
         
         - name: Validate docker image
           env:
-            IMAGE_TAG: ${{ steps.extract_version.outputs.VERSION }}        
+            IMAGE_TAG: ${{ steps.extract-version.outputs.VERSION }}
           run: |
             echo -e "\e[32mdocker ps!\e[0m"
             docker ps
