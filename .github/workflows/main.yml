@@ -1,0 +1,30 @@
+name: Build and push image Dotnet
+on:
+  workflow_dispatch: {}
+
+jobs:
+
+    extract-version:
+        runs-on: ubuntu-latest
+        steps:
+        - name: Checkout code
+          uses: actions/checkout@v3
+        - name: Get Version from changelog
+          id: extract_version
+          run: |
+            VERSION=$(grep -oPm1 "(?<=## \[)[^]]+" CHANGELOG.md)
+            echo "Extracted version: $VERSION"
+            echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+    build:
+        name: Build and push Docker image
+        needs: extract-version
+        runs-on: ubuntu-latest
+        steps:
+        - name: Checkout code
+          uses: actions/checkout@v3
+    
+        - name: Validate build dockerfile
+          run: docker build -t mi-app:${{ steps.extract_version.outputs.VERSION }} .
+
+
