@@ -47,7 +47,7 @@ jobs:
         - name: Build, tag, and push Docker image to Amazon ECR
           env:
             IMAGE_TAG: ${{ needs.extract-version.outputs.app_version }}
-            ECR_REPOSITORY: ecrtecylabs2
+            ECR_REPOSITORY: testsesion2tl
             ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           run: |
             docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
