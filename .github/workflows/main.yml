@@ -30,45 +30,65 @@ jobs:
           run: |
            echo "Version: ${{ needs.extract-version.outputs.app_version }}"
 
-        - name: Build dockerfile
+        - name: Configure AWS credentials OIDC
+          uses: aws-actions/configure-aws-credentials@v4
+          with:
+            role-to-assume: arn:aws:iam::096971548773:role/github-action-oidc
+            aws-region: us-east-2
+
+        - name: Login to Amazon ECR
+          id: login-ecr
+          uses: aws-actions/amazon-ecr-login@v2
+
+        - name: Build, tag, and push Docker image to Amazon ECR
           env:
             IMAGE_TAG: ${{ needs.extract-version.outputs.app_version }}
-          run: docker build -t mi-app:$IMAGE_TAG .
-        
-        - name: Validate docker image
-          env:
-            IMAGE_TAG: ${{ needs.extract-version.outputs.app_version }}
+            ECR_REPOSITORY: ecrtecylabs2
+            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           run: |
-            echo -e "\e[32mdocker ps!\e[0m"
-            docker ps
-            echo -e "\e[32mdocker ps -a!\e[0m"
-            docker ps -a
-            echo -e "\e[32mdocker images!\e[0m"
+            docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
             docker images
-            echo -e "\e[32mdocker run!\e[0m"
-            docker run -d --name mi-app-container -p 8081:8081 -e SERVERS_ADRESS=0.0.0.0 mi-app:$IMAGE_TAG
-            echo -e "\e[32mdocker ps!\e[0m"
-            docker ps
-            sleep 20      
-            echo -e "\e[32mdocker logs mi-app-container!\e[0m"
-            docker logs mi-app-container
-            echo -e "\e[32mValidar curl!\e[0m"
-            curl -f http://localhost:8081/weatherForecast || (echo "Curl failed" && exit 1)
-            echo -e "\e[32mdocker stop mi-app-container!\e[0m"
-            docker stop mi-app-container
-            docker logs mi-app-container
-            echo -e "\e[32mdocker ps!\e[0m"
-            docker ps
-            echo -e "\e[32mdocker ps -a!\e[0m"
-            docker ps -a
-            echo -e "\e[32mdocker rm mi-app-container (eliminar)!\e[0m"
-            docker rm mi-app-container
-            echo -e "\e[32mdocker ps!\e[0m"
-            docker ps
-            echo -e "\e[32mdocker ps -a!\e[0m"
-            docker ps -a     
-            echo -e "\e[32mdocker rmi mi-app:$IMAGE_TAG (eliminar)!\e[0m"
-            docker rmi mi-app:$IMAGE_TAG
-            echo -e "\e[32mdocker ps!\e[0m"
-            docker images
+
+        # - name: Build dockerfile
+        #   env:
+        #     IMAGE_TAG: ${{ needs.extract-version.outputs.app_version }}
+        #   run: docker build -t mi-app:$IMAGE_TAG .
+    
+        # - name: Validate docker image
+        #   env:
+        #     IMAGE_TAG: ${{ needs.extract-version.outputs.app_version }}
+        #   run: |
+        #     echo -e "\e[32mdocker ps!\e[0m"
+        #     docker ps
+        #     echo -e "\e[32mdocker ps -a!\e[0m"
+        #     docker ps -a
+        #     echo -e "\e[32mdocker images!\e[0m"
+        #     docker images
+        #     echo -e "\e[32mdocker run!\e[0m"
+        #     docker run -d --name mi-app-container -p 8081:8081 -e SERVERS_ADRESS=0.0.0.0 mi-app:$IMAGE_TAG
+        #     echo -e "\e[32mdocker ps!\e[0m"
+        #     docker ps
+        #     sleep 20      
+        #     echo -e "\e[32mdocker logs mi-app-container!\e[0m"
+        #     docker logs mi-app-container
+        #     echo -e "\e[32mValidar curl!\e[0m"
+        #     curl -f http://localhost:8081/weatherForecast || (echo "Curl failed" && exit 1)
+        #     echo -e "\e[32mdocker stop mi-app-container!\e[0m"
+        #     docker stop mi-app-container
+        #     docker logs mi-app-container
+        #     echo -e "\e[32mdocker ps!\e[0m"
+        #     docker ps
+        #     echo -e "\e[32mdocker ps -a!\e[0m"
+        #     docker ps -a
+        #     echo -e "\e[32mdocker rm mi-app-container (eliminar)!\e[0m"
+        #     docker rm mi-app-container
+        #     echo -e "\e[32mdocker ps!\e[0m"
+        #     docker ps
+        #     echo -e "\e[32mdocker ps -a!\e[0m"
+        #     docker ps -a     
+        #     echo -e "\e[32mdocker rmi mi-app:$IMAGE_TAG (eliminar)!\e[0m"
+        #     docker rmi mi-app:$IMAGE_TAG
+        #     echo -e "\e[32mdocker ps!\e[0m"
+        #     docker images
 
