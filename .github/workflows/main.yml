@@ -1,4 +1,4 @@
-name: Build and push image Dotnet
+name: Build and push image Java Spring Boot
 on:
   workflow_dispatch: {}
 
@@ -25,9 +25,13 @@ jobs:
           uses: actions/checkout@v3
     
         - name: Build dockerfile
-          run: docker build -t mi-app:1.0.0 .
+          env:
+            IMAGE_TAG: ${{ steps.extract_version.outputs.VERSION }}
+          run: docker build -t mi-app:$IMAGE_TAG .
         
         - name: Validate docker image
+          env:
+            IMAGE_TAG: ${{ steps.extract_version.outputs.VERSION }}        
           run: |
             echo -e "\e[32mdocker ps!\e[0m"
             docker ps
@@ -36,14 +40,14 @@ jobs:
             echo -e "\e[32mdocker images!\e[0m"
             docker images
             echo -e "\e[32mdocker run!\e[0m"
-            docker run -d --name mi-app-container -p 8080:8080 -e SERVERS_ADRESS=0.0.0.0 mi-app:1.0.0
+            docker run -d --name mi-app-container -p 8081:8081 -e SERVERS_ADRESS=0.0.0.0 mi-app:$IMAGE_TAG
             echo -e "\e[32mdocker ps!\e[0m"
             docker ps
             sleep 20      
             echo -e "\e[32mdocker logs mi-app-container!\e[0m"
             docker logs mi-app-container
             echo -e "\e[32mValidar curl!\e[0m"
-            curl -f http://localhost:8080 || (echo "Curl failed" && exit 1)
+            curl -f http://localhost:8081/weatherForecast || (echo "Curl failed" && exit 1)
             echo -e "\e[32mdocker stop mi-app-container!\e[0m"
             docker stop mi-app-container
             docker logs mi-app-container
@@ -58,7 +62,7 @@ jobs:
             echo -e "\e[32mdocker ps -a!\e[0m"
             docker ps -a     
             echo -e "\e[32mdocker rmi mi-app:1.0.0 (eliminar)!\e[0m"
-            docker rmi mi-app:1.0.0
+            docker rmi mi-app:$IMAGE_TAG
             echo -e "\e[32mdocker ps!\e[0m"
             docker images
 

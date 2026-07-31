@@ -1,20 +1,17 @@
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM maven:3.8.8-eclipse-temurin-17 AS build
 WORKDIR /app
 
-COPY *.sln ./
-COPY MyMinimalApi/*.csproj ./MyMinimalApi/
-COPY MyMinimalApi.Tests/*.csproj ./MyMinimalApi.Tests/
-RUN dotnet restore
+COPY pom.xml .
+RUN mvn dependency:go-offline
 
-COPY . ./
-RUN dotnet publish -c Release -o out
+COPY src ./src
+RUN mvn clean package -DskipTests
 
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
+FROM mcr.microsoft.com/openjdk/jdk:17-ubuntu AS runtime
+
 WORKDIR /app
-COPY --from=build /app/out .
+COPY --from=build /app/target/spring-boot-docker.jar app.jar
 
-ENV ASPNETCORE_URLS=http://0.0.0.0:8080
+EXPOSE 8081
 
-EXPOSE 8080
-
-ENTRYPOINT ["dotnet", "MyMinimalApi.dll"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
